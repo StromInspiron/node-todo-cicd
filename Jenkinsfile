@@ -1,34 +1,41 @@
-pipeline{
-    agent { label 'dev-server' }
+pipeline {
+    agent any
     
     stages{
-        stage("Code Clone"){
+        stage('Code'){
             steps{
-                echo "Code Clone Stage"
-                git url: "https://github.com/LondheShubham153/node-todo-cicd.git", branch: "master"
+                git url:'https://github.com/StromInspiron/node-todo-cicd.git', branch: 'master'
+                
             }
         }
-        stage("Code Build & Test"){
+        
+        stage('Build'){
             steps{
-                echo "Code Build Stage"
-                sh "docker build -t node-app ."
+                sh 'docker build . -t strominspiron/node-todo-test:latest'
+                
             }
         }
-        stage("Push To DockerHub"){
+        
+        stage('Push'){
             steps{
-                withCredentials([usernamePassword(
-                    credentialsId:"dockerHubCreds",
-                    usernameVariable:"dockerHubUser", 
-                    passwordVariable:"dockerHubPass")]){
-                sh 'echo $dockerHubPass | docker login -u $dockerHubUser --password-stdin'
-                sh "docker image tag node-app:latest ${env.dockerHubUser}/node-app:latest"
-                sh "docker push ${env.dockerHubUser}/node-app:latest"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerhubPassword', usernameVariable: 'dockerhubUser')]){
+                 sh "docker login -u ${env.dockerhubUser} -p ${env.dockerhubPassword}"
+                 sh 'docker push strominspiron/node-todo-test:latest'
                 }
             }
         }
-        stage("Deploy"){
+        
+        stage('Test'){
             steps{
-                sh "docker compose down && docker compose up -d --build"
+                echo'Testing the code'
+                
+            }
+        }
+        
+        stage('Deploy'){
+            steps{
+                sh "docker-compose down && docker-compose up -d"
+                
             }
         }
     }
