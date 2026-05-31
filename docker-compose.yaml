@@ -2,6 +2,6 @@ version: '3.9'
 
 services:
   web:
-    image: 'strominspiron/node-app:latest'
+    image: 'strominspiron/node-todo-test:latest'
     ports:
       - "8000:8000"
